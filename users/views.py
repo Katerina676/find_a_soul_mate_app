@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.authtoken.models import Token
 from rest_framework import status
+from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -10,7 +11,6 @@ from .serializers import UserSerializer
 
 
 class RegisterUser(APIView):
-
     def post(self, request, *args, **kwargs):
         if {'first_name', 'last_name', 'email', 'password', 'gender'}.issubset(self.request.data):
             try:

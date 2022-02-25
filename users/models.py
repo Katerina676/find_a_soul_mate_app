@@ -1,14 +1,14 @@
+from PIL import Image
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django_rest_passwordreset.tokens import get_token_generator
 
-
-GENDER_CHOICES = (
-	('M', 'Male'),
-	('F', 'Female'),
-)
-
+SEX_CHOICES = [
+        ('м', 'Мужской'),
+        ('ж', 'Женский')
+    ]
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
@@ -37,14 +37,42 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     objects = UserManager()
+    REQUIRED_FIELDS = []
+    USERNAME_FIELD = 'email'
 
     email = models.EmailField(verbose_name='Почта', max_length=254, unique=True)
     first_name = models.CharField(verbose_name='Имя', max_length=50)
     last_name = models.CharField(verbose_name='Фамилия', max_length=50)
-    gender = models.CharField(verbose_name='Пол', choices=GENDER_CHOICES, max_length=7)
+    gender = models.CharField(verbose_name='Пол', choices=SEX_CHOICES, max_length=7)
     avatar = models.ImageField(verbose_name='Аватарка', upload_to='media', blank=True, null=True)
+    username_validator = UnicodeUsernameValidator()
+    username = models.CharField(
+        max_length=150,
+        help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
+        validators=[username_validator],
+        error_messages={
+            'unique': "A user with that username already exists.",
+        },
+    )
+
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        super().save()
+        if not self.avatar:
+            return
+        img = Image.open(self.avatar.path)
+        width, height = img.size
+        watermark = Image.open('watermark.png')
+        watermark.thumbnail((200, 200))
+        mark_width, mark_height = watermark.size
+        paste_mask = watermark.split()[3]
+        x = width - mark_width - 5
+        y = height - mark_height - 5
+        img.paste(watermark, (x, y), paste_mask)
+        img.save(self.avatar.path)
+
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
