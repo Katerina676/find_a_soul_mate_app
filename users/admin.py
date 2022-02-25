@@ -1,3 +1,23 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
-# Register your models here.
+from .models import User, ConfirmEmailToken
+
+
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    model = User
+    fieldsets = (
+        (None, {'fields': ('email', 'password')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'gender', 'avatar')}),
+        ('Permissions', {
+            'fields': ('is_active', 'is_superuser'),
+        }),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+    )
+    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'is_active')
+
+
+@admin.register(ConfirmEmailToken)
+class ConfirmEmailTokenAdmin(admin.ModelAdmin):
+    list_display = ('user', 'key', 'created_at',)
