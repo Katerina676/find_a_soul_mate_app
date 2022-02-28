@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User, ConfirmEmailToken
+from .models import User, ConfirmEmailToken, Loves
 
 
 @admin.register(User)
@@ -9,7 +9,7 @@ class CustomUserAdmin(UserAdmin):
     model = User
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'gender', 'avatar')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'gender', 'avatar', 'latitude', 'longitude')}),
         ('Permissions', {
             'fields': ('is_active', 'is_superuser'),
         }),
@@ -21,3 +21,9 @@ class CustomUserAdmin(UserAdmin):
 @admin.register(ConfirmEmailToken)
 class ConfirmEmailTokenAdmin(admin.ModelAdmin):
     list_display = ('user', 'key', 'created_at',)
+
+
+@admin.register(Loves)
+class LovesUserAdmin(admin.ModelAdmin):
+    model = Loves
+    list_display = ('id_to', 'id_from')

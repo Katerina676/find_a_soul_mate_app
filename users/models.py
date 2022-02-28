@@ -5,10 +5,11 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django_rest_passwordreset.tokens import get_token_generator
 
-SEX_CHOICES = [
-        ('м', 'Мужской'),
-        ('ж', 'Женский')
+GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female')
     ]
+
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
@@ -43,7 +44,7 @@ class User(AbstractUser):
     email = models.EmailField(verbose_name='Почта', max_length=254, unique=True)
     first_name = models.CharField(verbose_name='Имя', max_length=50)
     last_name = models.CharField(verbose_name='Фамилия', max_length=50)
-    gender = models.CharField(verbose_name='Пол', choices=SEX_CHOICES, max_length=7)
+    gender = models.CharField(verbose_name='Пол', choices=GENDER_CHOICES, max_length=7)
     avatar = models.ImageField(verbose_name='Аватарка', upload_to='media', blank=True, null=True)
     username_validator = UnicodeUsernameValidator()
     username = models.CharField(
@@ -57,6 +58,8 @@ class User(AbstractUser):
 
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         super().save()
@@ -72,7 +75,6 @@ class User(AbstractUser):
         y = height - mark_height - 5
         img.paste(watermark, (x, y), paste_mask)
         img.save(self.avatar.path)
-
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -113,3 +115,22 @@ class ConfirmEmailToken(models.Model):
         if not self.key:
             self.key = self.generate_key()
         return super(ConfirmEmailToken, self).save(*args, **kwargs)
+
+
+class Loves(models.Model):
+    id_from = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name='id_from')
+    id_to = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name='id_to')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['id_from', 'id_to'],
+                name='unique matches')
+        ]
+        verbose_name = 'Взаимность'
+        verbose_name_plural = 'Взаимности'
+
+    def __str__(self):
+        return f"{self.id_from} + {self.id_to}"

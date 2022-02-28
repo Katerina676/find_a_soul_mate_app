@@ -1,0 +1,61 @@
+###
+POST http://127.0.0.1:8000/api/clients/create
+Content-Type: application/json
+
+{
+        "first_name": "Kate",
+        "last_name": "Baeva",
+        "email": "katebaeva5@mail.com",
+        "password": "na687678676",
+        "gender": "F",
+        "latitude":"50",
+        "longitude":"30"
+    }
+
+###
+POST http://127.0.0.1:8000/api/clients/create/confirm
+Content-Type: application/json
+
+{
+  "email":"katebaeva5@mail.com",
+  "token":"d24bc5661ff2e7507832c4bf4db458c6c"
+}
+
+
+
+###
+POST http://127.0.0.1:8000/api/clients/login
+Content-Type: application/json
+
+{
+  "email":"katebaeva5@mail.com",
+  "password":"na687678676"
+}
+
+
+###
+GET http://127.0.0.1:8000/api/clients/3/match
+Content-Type: application/json
+Authorization: Token f51e23cf331636d83b2e208f015b3de77f7b0998
+
+
+###
+POST http://127.0.0.1:8000/api/clients/2/match
+Content-Type: application/json
+Authorization: Token 6c99a25b37dfd1e6edc674ad2d319835824642bb
+
+{
+    "id_from":"3",
+    "id_to":"2"
+}
+
+
+###
+GET http://127.0.0.1:8000/api/list/?gender=&first_name=&last_name=&distance=8
+Content-Type: application/json
+Authorization: Token 5b7b3a6d4836afaaa3e3c4e947c5e610702518c7
+
+
+###
+GET http://127.0.0.1:8000/api/clients/distance/2/5
+Content-Type: application/json
